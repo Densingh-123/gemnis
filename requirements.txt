@@ -9,3 +9,4 @@ wikipedia
 wolframalpha
 google-generativeai
 audio_recorder_streamlit
+speedtest-cli
