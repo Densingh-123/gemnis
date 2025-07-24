@@ -17,13 +17,11 @@ import webbrowser
 import random
 import datetime
 import requests
-import pyautogui
 import psutil
 import speedtest
 from gtts import gTTS
 from audio_recorder_streamlit import audio_recorder
 import speech_recognition as sr
-from pynput.keyboard import Key, Controller as KeyboardController
 import google.generativeai as genai
 import numpy as np
 import pandas as pd
@@ -285,7 +283,6 @@ def apply_custom_css():
 class JarvisAssistant:
     def __init__(self, user_name="Densingh"):
         self.user_name = user_name
-        self.keyboard = KeyboardController()
         
         # Initialize data first
         self.personal_data = self._load_personal_data()
@@ -369,7 +366,6 @@ class JarvisAssistant:
             "brave": lambda q: self.search_web(q.replace("brave", "").strip(), "brave"),
             "open": lambda q: self.open_local_app(q.replace("open", "").strip()),
             "close": lambda q: self.close_local_app(q.replace("close", "").strip()),
-            "screenshot": self.take_screenshot,
             "volume up": lambda q: self.adjust_volume("up"),
             "volume down": lambda q: self.adjust_volume("down"),
             "play": lambda q: self.control_media("playpause"),
@@ -408,7 +404,6 @@ class JarvisAssistant:
         - Perform calculations (`calculate [expression]`)
         - Web searches (`google [query]`, `youtube [query]`)
         - Open/close applications (`open [app name]`, `close [app name]`)
-        - Take screenshots (`screenshot`)
         - Control media (`play`, `pause`, `volume up`, `volume down`)
         - Run internet speed tests (`speed test`)
         - Get system information (`system info`)
@@ -527,28 +522,11 @@ class JarvisAssistant:
             return f"Terminating {app_name} process."
         return f"Unable to specifically close {app_name}."
 
-    def take_screenshot(self, query=None):
-        try:
-            path = os.path.join(os.path.expanduser("~"), "Desktop", f"screenshot_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.png")
-            pyautogui.screenshot(path)
-            return f"Screenshot captured and saved to your desktop."
-        except Exception as e:
-            return f"Failed to capture screenshot: {e}"
-
     def adjust_volume(self, direction):
-        key = Key.media_volume_up if direction == "up" else Key.media_volume_down
-        for _ in range(5):
-            self.keyboard.press(key); self.keyboard.release(key); time.sleep(0.1)
-        return f"System volume adjusted {direction}."
+        return "Volume control is not supported in cloud environments."
 
     def control_media(self, action):
-        if action == "playpause":
-            pyautogui.press("playpause")
-            return "Playback toggled."
-        elif action == "mute":
-            pyautogui.press("volumemute")
-            return "Mute toggled."
-        return ""
+        return "Media control is not supported in cloud environments."
 
     def run_speed_test(self, query=None):
         st.info("Running internet speed test... This may take a moment.")
@@ -690,7 +668,7 @@ def display_weather_or_datetime_box(content):
     st.markdown(weather_html, unsafe_allow_html=True)
 
 try:
-    weather_response = st.session_state.assistant.get_weather()
+    weather_response = JarvisAssistant().get_weather()
     if "Could not retrieve weather" in weather_response or "API key" in weather_response:
         raise Exception("Weather unavailable")
     display_weather_or_datetime_box(weather_response.replace('\n', '<br>'))
